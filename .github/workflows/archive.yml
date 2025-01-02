@@ -3,14 +3,13 @@ name: Archive EOL repositories
 on:
   schedule:
     - cron: '0 0 1 * *'
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 jobs:
   archive:
     name: Archive EOL repositories
     runs-on: ubuntu-latest
-    env:
-        GITHUB_TOKEN: ${{ secrets.FLATHUBBOT_TOKEN }}
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
@@ -23,6 +22,12 @@ jobs:
       - name: Set up Flathub remotes
         run: |
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak remote-add --user --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
 
       - name: Run EOL script
         run: python3 .github/scripts/archive_eol.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.FLATHUBBOT_TOKEN }}
+
+#      - name: Run orphan script
+#        run: python3 .github/scripts/archive_orphan.py
